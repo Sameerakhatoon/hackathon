@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚫 Suspicious Site Blocked</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #222;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px #000a;
+            padding: 32px 24px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #ff4444;
+            margin-bottom: 16px;
+        }
+        .url {
+            color: #00aaff;
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+        .reason, .ai-analysis {
+            background: #333;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #ffaa00;
+        }
+        .ai-analysis {
+            color: #00ff99;
+        }
+        .btn {
+            background: #00ff99;
+            color: #222;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 24px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #00cc77;
+        }
+        .msg {
+            margin-top: 16px;
+            color: #00ff99;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚫 Suspicious Site Blocked</h1>
+        <div class="url" th:text="${url}"></div>
+        <div class="reason"><strong>Reason:</strong> <span th:text="${reason}"></span></div>
+        <div class="ai-analysis"><strong>AI Analysis:</strong> <span th:text="${aiAnalysis}"></span></div>
+        <button class="btn" id="whitelistBtn">Add to Whitelist & Retry</button>
+        <div class="msg" id="msg"></div>
+    </div>
+    <script th:inline="javascript">
+        document.getElementById('whitelistBtn').onclick = function() {
+            var url = /*[[${url}]]*/ '';
+            fetch('/api/whitelist/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('msg').textContent = 'URL added to whitelist! Reloading...';
+                    setTimeout(() => {
+                        window.location.href = url;
+                    }, 1200);
+                } else {
+                    document.getElementById('msg').textContent = data.message || 'Failed to add to whitelist.';
+                }
+            })
+            .catch(() => {
+                document.getElementById('msg').textContent = 'Error adding to whitelist.';
+            });
+        };
+    </script>
+</body>
+</html>
