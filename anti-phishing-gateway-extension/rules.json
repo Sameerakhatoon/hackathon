@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "http://localhost:8080/proxy?url=$&"
+      }
+    },
+    "condition": {
+      "regexFilter": "^(https?://.*)",
+      "resourceTypes": ["main_frame"]
+    }
+  }
+]

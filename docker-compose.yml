@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Main Anti-Phishing Gateway
+  anti-phishing-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anti-phishing-ai-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - gateway-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Optional: Prometheus for monitoring (can be enabled for production)
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   networks:
+  #     - gateway-network
+  #   restart: unless-stopped
+
+  # mitmproxy service for robust HTTP/HTTPS proxying
+  mitmproxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.mitmproxy
+    container_name: mitmproxy-gateway
+    ports:
+      - "8081:8081"
+    depends_on:
+      - anti-phishing-gateway
+    volumes:
+      - ./logs:/var/log
+    networks:
+      - gateway-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Optional: Grafana for dashboards (can be enabled for production)
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #   networks:
+  #     - gateway-network
+  #   restart: unless-stopped
+
+networks:
+  gateway-network:
+    driver: bridge
+    name: anti-phishing-network
+
+volumes:
+  logs:
+    driver: local

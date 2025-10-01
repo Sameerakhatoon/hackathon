@@ -1,0 +1,17 @@
+FROM mitmproxy/mitmproxy:latest
+
+# Install Python dependencies
+RUN pip install requests
+
+# Ensure log directory exists and is writable
+RUN mkdir -p /var/log \
+    && chmod 755 /var/log
+
+# Copy the mitmproxy script
+COPY ai_gateway.py /app/ai_gateway.py
+
+# Set the working directory
+WORKDIR /app
+
+# Run mitmdump (non-interactive version) with the script and log to file
+CMD ["sh", "-c", "mitmdump -s /app/ai_gateway.py --listen-host 0.0.0.0 --listen-port 8081 > /var/log/mitmproxy.log 2>&1"]

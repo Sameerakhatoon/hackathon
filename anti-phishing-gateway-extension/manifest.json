@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Anti-Phishing Gateway Proxy",
+  "version": "1.0",
+  "description": "Automatically configures browser proxy to use the Anti-Phishing AI Gateway.",
+  "permissions": [
+    "proxy",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
