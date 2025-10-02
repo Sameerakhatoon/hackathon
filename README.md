@@ -17,6 +17,97 @@ The **Anti-Phishing AI Web Gateway** is a sophisticated, containerized security 
 
 ---
 
+## 🚀 Quick Start Installation
+
+### 📋 Prerequisites
+- **Docker** and **Docker Compose** installed
+- **Chrome** browser for testing
+- **Internet connection** for AI API calls
+
+### 🔧 Step-by-Step Setup
+
+#### 1. **Clone and Navigate**
+```bash
+git clone <repository-url>
+cd anti-phishing-ai-gateway
+```
+
+#### 2. **Start the System**
+```bash
+docker-compose up --build
+```
+This will:
+- Build and start the Java AI Gateway (port 8080)
+- Build and start mitmproxy (port 8081)
+- Create persistent `logs/` directory
+- Generate mitmproxy CA certificate
+
+#### 3. **Verify System Health**
+```bash
+# Check Java backend health
+curl http://localhost:8080/actuator/health
+
+# Check mitmproxy status
+curl http://localhost:8081/
+```
+
+#### 4. **Install Browser Extension**
+1. Open Chrome and go to `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked" and select the `anti-phishing-gateway-extension` folder
+4. The extension will automatically configure proxy settings
+
+#### 5. **Install mitmproxy CA Certificate**
+```bash
+# Extract certificate from container
+docker exec mitmproxy-gateway find / -name "mitmproxy-ca-cert.pem"
+docker cp mitmproxy-gateway:/root/.mitmproxy/mitmproxy-ca-cert.pem ./logs/mitmproxy-ca-cert.pem
+```
+
+**Install in Chrome:**
+1. Go to `chrome://settings/certificates`
+2. Click "Authorities" tab
+3. Click "Import" and select `./logs/mitmproxy-ca-cert.pem`
+4. Check "Trust this certificate for identifying websites"
+5. Click "OK"
+
+#### 6. **Test the System**
+Visit these URLs to test different scenarios:
+
+**✅ Safe Sites (Should Allow):**
+- `https://www.google.com/`
+- `https://onlinesbi.sbi.bank.in/`
+
+**⚠️ Phishing Sites (Should Block/Warn):**
+- `http://www.phishingsite.com/`
+- `https://fake-bank-login.com/`
+
+### 🎯 Expected Behavior
+- **Safe sites**: Load normally with green "ALLOWED" logs
+- **Suspicious sites**: Show interactive warning/block pages
+- **One-click override**: "Add to Whitelist & Retry" button
+- **Live monitoring**: View logs at `http://localhost:8080/logs`
+
+### 🔍 Troubleshooting
+
+**Certificate Issues:**
+```bash
+# Re-extract certificate if needed
+docker cp mitmproxy-gateway:/root/.mitmproxy/mitmproxy-ca-cert.pem ./logs/mitmproxy-ca-cert.pem
+```
+
+**Proxy Not Working:**
+- Check extension is loaded and enabled
+- Verify proxy settings point to `localhost:8081`
+- Restart browser after certificate installation
+
+**AI API Issues:**
+- Check internet connection
+- Verify Cerebras API key is configured
+- Check logs at `http://localhost:8080/logs`
+
+---
+
 ## 🏗️ Architecture
 
 ```
@@ -72,7 +163,7 @@ The **Anti-Phishing AI Web Gateway** is a sophisticated, containerized security 
 - **Live Logging**: Real-time log streaming with Server-Sent Events
 - **Health Monitoring**: System status endpoints and comprehensive diagnostics
 - **Docker Integration**: Easy deployment with Docker Compose orchestration
-- **Browser Extension**: Zero-configuration proxy setup for Chrome/Edge
+- **Browser Extension**: Zero-configuration proxy setup for Chrome
 
 ---
 
