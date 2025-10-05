@@ -68,9 +68,9 @@ Built for the **FutureStack GenAI Hackathon 2025**, our system combines **Meta's
 
 ```bash
 
-git clone <repository-url>
+git clone https://github.com/Sameerakhatoon/hackathon.git
 
-cd anti-phishing-ai-gateway
+cd hackathon
 
 ```
 
